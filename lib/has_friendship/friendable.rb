@@ -6,10 +6,10 @@ module HasFriendship
     end
 
     def has_friendship
-      
+
       class_eval do
         has_many :friendships, as: :friendable, class_name: "HasFriendship::Friendship", dependent: :destroy
-        has_many :friends, 
+        has_many :friends,
                   -> { where friendships: { status: 'accepted' } },
                   through: :friendships
 
@@ -34,11 +34,11 @@ module HasFriendship
 
     module InstanceMethods
 
-      def friend_request(friend)
+      def friend_request(friend, msg)
         unless self == friend || HasFriendship::Friendship.exist?(self, friend)
           transaction do
-            HasFriendship::Friendship.create(friendable_id: self.id, friendable_type: self.class.base_class.name, friend_id: friend.id, status: 'pending')
-            HasFriendship::Friendship.create(friendable_id: friend.id, friendable_type: friend.class.base_class.name, friend_id: self.id, status: 'requested')
+            HasFriendship::Friendship.create(friendable_id: self.id, friendable_type: self.class.base_class.name, friend_id: friend.id, status: 'pending', message: msg )
+            HasFriendship::Friendship.create(friendable_id: friend.id, friendable_type: friend.class.base_class.name, friend_id: self.id, status: 'requested', message: msg)
           end
         end
       end
